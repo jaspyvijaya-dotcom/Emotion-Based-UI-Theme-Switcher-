@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mood UI - A Complete Design Thinking Project</title>
+    <!--
+    ================================================================================
+    DESIGN THINKING CASE STUDY: Emotion-Based UI Theme Switcher
+    ================================================================================
+
+    PROJECT: Mood UI - An Emotion-Aware Interface Prototype
+
+    OBJECTIVE:
+    To create a functional prototype demonstrating how an interface that adapts to a user's
+    emotional state can enhance user experience, comfort, and productivity. This file serves
+    as both the technical prototype and the embedded case study documentation.
+
+    --------------------------------------------------------------------------------
+    THE DESIGN THINKING PROCESS
+    --------------------------------------------------------------------------------
+
+    1. EMPATHIZE: Understanding the User's Emotional Context
+    ----------------------------------------------------------
+    We assume users experience different emotional states during their day (stress, low 
+    energy, focus). A single, static UI is not optimal for all moods, as it can 
+    contribute to eye strain, lack of motivation, or distraction.
+
+    2. DEFINE: Stating the Core Problem
+    ------------------------------------
+    Problem Statement: "Users interact with static interfaces that do not adapt to their
+    emotional or cognitive state, which can reduce productivity, increase cognitive
+    load, and cause fatigue." The goal is to create a more human-centric digital environment.
+
+    3. IDEATE: Brainstorming Emotion-Aware Solutions
+    --------------------------------------------------
+    We propose three distinct themes to match user moods, each with a specific UX goal.
+    *   CALM THEME: To reduce stress and eye strain with soft, soothing aesthetics.
+    *   ENERGETIC THEME: To boost motivation and engagement with vibrant, stimulating visuals.
+    *   PROFESSIONAL THEME: To maintain focus and clarity with a clean, distraction-free UI.
+
+    4. PROTOTYPE: Building the Interactive Solution
+    -------------------------------------------------
+    This single-file application is a high-fidelity, interactive prototype. It simulates 
+    a real SaaS dashboard with advanced features like dynamic widgets, animated backgrounds, 
+    and a fully functional layout to provide a tangible demonstration of the concept.
+
+    5. TEST: Simulating the User Experience
+    -----------------------------------------
+    Testing is simulated by allowing users to interact with the prototype. By selecting a 
+    mood, they can instantly see and feel the UI transform. The "Mood Impact" dashboard 
+    provides quantitative feedback on the intended effect of each theme, helping to validate
+    the design choices.
+
+    ================================================================================
+    -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;700&family=Poppins:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        /* THEME DESIGN SYSTEM: CSS Variables */
+        :root {
+            --bg-color: #f0f2f5;
+            --sidebar-bg-color: rgba(255, 255, 255, 0.6);
+            --main-bg-color: rgba(255, 255, 255, 0.8);
+            --card-bg-color: #fff;
+            --text-primary: #1c1c1e;
+            --text-secondary: #6e6e73;
+            --accent-color: #007aff;
+            --border-color: #e5e5e5;
+            --shadow-color: rgba(0, 0, 0, 0.08);
+            --font-family: 'Roboto', sans-serif;
+            --sidebar-width: 260px;
+            --animated-bg: #f0f2f5;
+        }
+
+        .theme-calm {
+            --bg-color: #f1f5f9;
+            --sidebar-bg-color: rgba(230, 230, 250, 0.5);
+            --main-bg-color: rgba(240, 248, 255, 0.7);
+            --card-bg-color: rgba(255, 255, 255, 0.8);
+            --text-primary: #4a5568;
+            --text-secondary: #718096;
+            --accent-color: #8b5cf6;
+            --border-color: #e2e8f0;
+            --shadow-color: rgba(139, 92, 246, 0.1);
+            --font-family: 'Quicksand', sans-serif;
+            --animated-bg: linear-gradient(135deg, #e0c3fc, #8ec5fc, #e0c3fc);
+        }
+
+        .theme-energetic {
+            --bg-color: #fffbeb;
+            --sidebar-bg-color: rgba(255, 250, 235, 0.6);
+            --main-bg-color: rgba(255, 255, 255, 0.85);
+            --card-bg-color: #fff;
+            --text-primary: #422006;
+            --text-secondary: #78350f;
+            --accent-color: #f97316;
+            --border-color: #fef3c7;
+            --shadow-color: rgba(245, 158, 11, 0.15);
+            --font-family: 'Poppins', sans-serif;
+            --animated-bg: linear-gradient(45deg, #f6d365, #fda085, #f6d365);
+        }
+        
+        .theme-professional {
+             --animated-bg: linear-gradient(90deg, #f0f2f5 98%, #e5e7eb 98%);
+        }
+
+        /* --- KEYFRAME ANIMATIONS --- */
+        @keyframes animated-gradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+            100% { transform: translateY(0px); }
+        }
+        @keyframes pulse-glow {
+             0% { box-shadow: 0 0 5px 0px var(--accent-color); }
+             50% { box-shadow: 0 0 20px 8px var(--accent-color); }
+             100% { box-shadow: 0 0 5px 0px var(--accent-color); }
+        }
+
+        /* --- BASE & LAYOUT --- */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            transition: color 0.5s ease, background-color 0.5s ease;
+            overflow: hidden;
+        }
+
+        #app-background {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            z-index: -1;
+            background: var(--animated-bg);
+            background-size: 200% 200%;
+            transition: background 1s ease-in-out;
+        }
+        .theme-calm #app-background, .theme-energetic #app-background {
+            animation: animated-gradient 20s ease infinite;
+        }
+        .theme-professional #app-background {
+            background-size: 50px 50px;
+        }
+        
+        .app-layout { display: flex; height: 100vh; }
+
+        .sidebar {
+            position: fixed; top: 0; left: 0; height: 100%; width: var(--sidebar-width);
+            z-index: 1001; padding: 1.5rem;
+            background-color: var(--sidebar-bg-color); backdrop-filter: blur(12px);
+            border-right: 1px solid var(--border-color); white-space: nowrap;
+            transform: translateX(0);
+            transition: transform 0.4s ease-in-out, background-color 0.4s ease, border-color 0.4s ease;
+        }
+
+        .main-container {
+            flex-grow: 1; display: flex; flex-direction: column; height: 100vh;
+            padding-left: var(--sidebar-width);
+            transition: padding-left 0.4s ease-in-out;
+        }
+
+        .header {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 0 2rem; height: 70px;
+            background-color: var(--main-bg-color); backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            transition: all 0.4s ease;
+        }
+        
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 2.5rem; }
+
+        .sidebar-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.4); z-index: 1000;
+        }
+
+        /* --- SIDEBAR TOGGLE STATES & SUBMENU --- */
+        body.sidebar-collapsed .sidebar { transform: translateX(calc(-1 * var(--sidebar-width))); }
+        body.sidebar-collapsed .main-container { padding-left: 0; }
+
+        @media (max-width: 992px) {
+            .sidebar { transform: translateX(calc(-1 * var(--sidebar-width))); }
+            .main-container { padding-left: 0; }
+            body.sidebar-open .sidebar { transform: translateX(0); }
+            body.sidebar-open .sidebar-overlay { display: block; }
+        }
+        
+        .sidebar-toggle {
+            background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-secondary);
+            z-index: 1002;
+        }
+        
+        .sidebar .menu-item { display: block; margin-bottom: 0.5rem; border-radius: 8px; text-decoration: none; }
+        .sidebar .menu-link, .sidebar .submenu-toggle {
+            display: flex; align-items: center; gap: 1rem; padding: 0.8rem 1rem;
+            font-weight: 500; color: var(--text-secondary); text-decoration: none;
+            width: 100%; background: none; border: none; font-family: inherit;
+            font-size: 1rem; cursor: pointer; text-align: left;
+        }
+        .sidebar .menu-item.active > .menu-link, .sidebar .menu-item.active > .submenu-toggle,
+        .sidebar .menu-link:hover, .sidebar .submenu-toggle:hover {
+            background-color: var(--accent-color); color: white; border-radius: 8px;
+        }
+        .submenu-toggle .chevron { margin-left: auto; transition: transform 0.3s ease; }
+        .submenu { list-style: none; padding-left: 2.8rem; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-in-out; }
+        .submenu a { display: block; padding: 0.6rem 0; color: var(--text-secondary); text-decoration: none; font-size: 0.95rem; }
+        .submenu a:hover { color: var(--text-primary); }
+        .menu-item.submenu-open > .submenu-toggle .chevron { transform: rotate(180deg); }
+        .menu-item.submenu-open > .submenu { max-height: 500px; margin-top: 0.25rem; }
+
+        /* --- ADVANCED UI WIDGETS & CARDS --- */
+        .widget {
+            background-color: var(--card-bg-color); padding: 1.5rem;
+            border-radius: 16px; margin-bottom: 2rem;
+            border: 1px solid var(--border-color);
+            box-shadow: 0 8px 25px var(--shadow-color);
+            transition: all 0.4s ease;
+        }
+        .widget h2 { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        
+        .mood-card {
+            padding: 2rem; border: 2px solid transparent; cursor: pointer; text-align: center;
+            transition: all 0.3s ease;
+        }
+        .mood-card:hover { transform: translateY(-10px); box-shadow: 0 12px 30px var(--shadow-color); }
+        .mood-card.active { border-color: var(--accent-color); box-shadow: 0 0 0 4px var(--accent-color); transform: translateY(-5px); }
+        .theme-energetic .mood-card.active { animation: pulse-glow 2s infinite; }
+        .mood-card .icon { font-size: 3rem; margin-bottom: 1rem; display: block; }
+
+        .mood-impact-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+        .impact-metric .label { font-size: 1rem; color: var(--text-secondary); margin-bottom: 0.5rem; }
+        .impact-metric .value-bar { background-color: var(--border-color); border-radius: 8px; overflow: hidden; }
+        .impact-metric .value-fill {
+            background-color: var(--accent-color); height: 10px; width: 50%;
+            border-radius: 8px; transition: width 0.8s ease-in-out;
+        }
+        .impact-metric .value-text { font-size: 1.2rem; font-weight: 700; margin-top: 0.5rem; }
+
+        .suggestion-btn, .design-process-btn {
+            display: inline-block; padding: 0.8rem 1.5rem; border-radius: 8px;
+            background-color: var(--accent-color); color: white; font-weight: 600;
+            cursor: pointer; text-align: center; border: none; font-family: inherit;
+            transition: all 0.3s ease; margin-top: 1rem;
+        }
+        .suggestion-btn:hover, .design-process-btn:hover { filter: brightness(1.2); transform: translateY(-2px); }
+
+        .page {
+            display: none;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+        .page.active {
+            display: block;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* --- NEW DATA COMPONENT STYLES --- */
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+        }
+        .kpi-card {
+            background-color: var(--card-bg-color);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-color);
+        }
+        .kpi-card .value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--accent-color);
+        }
+        .kpi-card .label {
+            font-size: 1rem;
+            color: var(--text-secondary);
+        }
+
+        .chart-container {
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            gap: 1rem;
+            border-left: 2px solid var(--border-color);
+            border-bottom: 2px solid var(--border-color);
+            padding: 1rem;
+        }
+        .chart-bar {
+            flex-grow: 1;
+            background-color: var(--accent-color);
+            opacity: 0.8;
+            transition: height 0.5s ease-out;
+            position: relative;
+        }
+        .chart-bar:hover {
+            opacity: 1;
+        }
+        .chart-bar .tooltip {
+            position: absolute;
+            top: -2.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--text-primary);
+            color: var(--main-bg-color);
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.9rem;
+            opacity: 0;
+            transition: opacity 0.2s;
+            pointer-events: none;
+        }
+        .chart-bar:hover .tooltip {
+            opacity: 1;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1.5rem;
+        }
+        .data-table th, .data-table td {
+            padding: 0.8rem 1rem;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+        .data-table th {
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .data-table tbody tr:hover {
+            background-color: var(--border-color);
+        }
+
+        .settings-form {
+            display: grid;
+            gap: 1.5rem;
+            max-width: 500px;
+        }
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group label {
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+        }
+        .form-group input {
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 1rem;
+        }
+        .form-group input:focus {
+            outline: none;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 0 3px var(--accent-color);
+        }
+
+        /* --- TODO LIST WIDGET STYLES --- */
+        .todo-widget ul {
+            list-style: none;
+            padding: 0;
+        }
+        .todo-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border-color);
+            transition: opacity 0.3s ease;
+        }
+        .todo-item:last-child {
+            border-bottom: none;
+        }
+        .todo-item span {
+            flex-grow: 1;
+            cursor: pointer;
+            position: relative;
+        }
+        .todo-item.completed span {
+            text-decoration: line-through;
+            color: var(--text-secondary);
+        }
+        .todo-item .delete-btn {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            cursor: pointer;
+            opacity: 0.5;
+            transition: opacity 0.2s;
+        }
+        .todo-item:hover .delete-btn {
+            opacity: 1;
+            color: #ff453a;
+        }
+        .todo-add-form {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+        .todo-add-form input {
+            flex-grow: 1;
+            padding: 0.8rem;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            background-color: var(--bg-color);
+        }
+        .todo-add-form button {
+            padding: 0.8rem 1rem;
+            font-weight: 600;
+        }
+
+        /* --- LOADER & MODAL --- */
+        .loader-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9999; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .loader-overlay.visible { opacity: 1; pointer-events: all; }
+        .loader-text { font-size: 1.5rem; font-weight: 600; color: var(--text-primary); }
+
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(5px);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 9998; opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay.visible { opacity: 1; pointer-events: all; }
+        .modal {
+            background: var(--card-bg-color); color: var(--text-primary);
+            padding: 2rem; border-radius: 16px; max-width: 600px;
+            transform: scale(0.9); transition: transform 0.3s ease;
+        }
+        .modal-overlay.visible .modal { transform: scale(1); }
+        .modal h2 { margin-bottom: 1rem; }
+        .modal p { margin-bottom: 1rem; line-height: 1.6; }
+        .modal strong { color: var(--accent-color); }
+        .modal .close-btn { float: right; background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+
+        /* --- ACTIVITY FEED STYLES --- */
+        .activity-feed { list-style: none; }
+        .activity-feed li {
+            display: flex; align-items: center; gap: 1rem;
+            padding: 0.8rem 0; border-bottom: 1px solid var(--border-color);
+        }
+        .activity-feed li:last-child { border-bottom: none; }
+        .activity-feed .icon {
+            width: 36px; height: 36px; border-radius: 50%;
+            background: var(--bg-color); display: flex; align-items: center; justify-content: center;
+            font-size: 1.2rem;
+        }
+        .activity-feed .text { font-size: 0.95rem; flex-grow: 1; }
+        .activity-feed .time {
+            font-size: 0.85rem; color: var(--text-secondary); white-space: nowrap;
+        }
+
+    </style>
+</head>
+<body class="theme-professional">
+
+    <div id="app-background"></div>
+    <div class="loader-overlay" id="loader">
+        <div class="loader-text">Adapting UI to your mood...</div>
+    </div>
+    <div class="modal-overlay" id="design-modal">
+        <div class="modal">
+            <button class="close-btn" id="modal-close-btn">&times;</button>
+            <h2>📘 The Design Thinking Process</h2>
+            <p><strong>1. Empathize:</strong> We started by understanding that users aren't static; they feel stressed, tired, or motivated. A single UI design fails to meet these shifting emotional and cognitive needs.</p>
+            <p><strong>2. Define:</strong> The core problem is that rigid interfaces can increase fatigue and reduce productivity. Our goal is to create a more human-centric UI that adapts to the user.</p>
+            <p><strong>3. Ideate:</strong> We brainstormed three targeted themes: <strong>Calm</strong> (to soothe and focus), <strong>Energetic</strong> (to motivate and inspire), and <strong>Professional</strong> (to minimize distractions for deep work).</p>
+            <p><strong>4. Prototype:</strong> This dashboard is the high-fidelity result, featuring dynamic widgets, animations, and adaptive styles to make the concept tangible.</p>
+            <p><strong>5. Test:</strong> By interacting with this prototype, we can simulate and validate how each theme positively impacts the user's experience, with the "Mood Impact" dashboard providing instant, quantifiable feedback.</p>
+        </div>
+    </div>
+
+    <div class="app-layout">
+        <aside class="sidebar" id="sidebar">
+            <h1 class="logo">MoodUI</h1>
+            <nav class="menu">
+                <div class="menu-item">
+                    <a href="#" class="menu-link" data-target="page-home">
+                        <span class="icon">🏠</span> <span class="text">Home</span>
+                    </a>
+                </div>
+                <div class="menu-item active">
+                    <a href="#" class="menu-link" data-target="page-themes">
+                        <span class="icon">🎨</span> <span class="text">Themes</span>
+                    </a>
+                </div>
+                <div class="menu-item has-submenu">
+                    <button class="submenu-toggle">
+                        <span class="icon">📊</span> <span class="text">Insights</span>
+                        <span class="chevron">▼</span>
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="#" data-target="page-insights-traffic">Traffic</a></li>
+                        <li><a href="#" data-target="page-insights-engagement">Engagement</a></li>
+                    </ul>
+                </div>
+                <div class="menu-item has-submenu">
+                    <button class="submenu-toggle">
+                        <span class="icon">⚙️</span> <span class="text">Settings</span>
+                        <span class="chevron">▼</span>
+                    </button>
+                    <ul class="submenu">
+                        <li><a href="#" data-target="page-settings-profile">Profile</a></li>
+                        <li><a href="#" data-target="page-settings-security">Security</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+        <div class="main-container">
+            <header class="header">
+                <button class="sidebar-toggle" id="sidebar-toggle-btn">☰</button>
+                <button class="design-process-btn" id="view-design-process">📘 View Design Process</button>
+            </header>
+
+            <main class="main-content">
+                <div class="page active" id="page-themes">
+                    <div class="widget">
+                        <h2>How are you feeling today?</h2>
+                        <p>Select a mood to adapt the UI to your current state.</p>
+                        <div class="mood-impact-grid">
+                            <div class="mood-card widget" data-theme="theme-calm">
+                                <span class="icon">😌</span>
+                                <h4>Calm</h4>
+                                <p>Reduce stress and relax your eyes.</p>
+                            </div>
+                            <div class="mood-card widget" data-theme="theme-energetic">
+                                <span class="icon">⚡️</span>
+                                <h4>Energetic</h4>
+                                <p>Boost motivation and feel engaged.</p>
+                            </div>
+                            <div class="mood-card widget active" data-theme="theme-professional">
+                                <span class="icon">💼</span>
+                                <h4>Professional</h4>
+                                <p>Stay focused and be productive.</p>
+                            </div>
+                        </div>
+                         <button class="suggestion-btn" id="suggestion-btn">✨ Suggest Best Mood</button>
+                    </div>
+                    
+                    <div class="widget">
+                        <h2>Mood Impact</h2>
+                        <div class="mood-impact-grid">
+                            <div class="impact-metric">
+                                <div class="label">Stress Level</div>
+                                <div class="value-bar"><div class="value-fill" id="stress-fill"></div></div>
+                                <div class="value-text" id="stress-text">Medium</div>
+                            </div>
+                            <div class="impact-metric">
+                                <div class="label">Energy Level</div>
+                                <div class="value-bar"><div class="value-fill" id="energy-fill"></div></div>
+                                <div class="value-text" id="energy-text">Medium</div>
+                            </div>
+                            <div class="impact-metric">
+                                <div class="label">Focus Score</div>
+                                <div class="value-bar"><div class="value-fill" id="focus-fill"></div></div>
+                                <div class="value-text" id="focus-text">High</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="page" id="page-home">
+                    <div class="widget">
+                        <h2>Good Morning, Alex! ☀️</h2>
+                        <p>You have 3 pending tasks today. Stay energetic!</p>
+                        <div class="kpi-grid" id="kpi-grid-home">
+                            <!-- KPI Cards will be injected by JS -->
+                        </div>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                        <div class="widget todo-widget">
+                            <h3>📝 My Tasks</h3>
+                            <ul id="todo-list"></ul>
+                            <form class="todo-add-form" id="todo-form">
+                                <input type="text" id="todo-input" placeholder="Add a new task..." autocomplete="off">
+                                <button type="submit" class="suggestion-btn" style="margin-top:0;">Add</button>
+                            </form>
+                        </div>
+                        <div class="widget">
+                            <h3>🔔 Recent Activity</h3>
+                            <ul class="activity-feed" id="activity-feed"></ul>
+                        </div>
+                    </div>
+                </div>
+                <div class="page" id="page-insights-traffic">
+                    <div class="widget">
+                        <h2>Traffic Insights</h2>
+                        <p>Analysis of top traffic sources for the last 30 days.</p>
+                        <div class="chart-container" id="traffic-chart">
+                            <!-- Chart bars will be injected by JS -->
+                        </div>
+                    </div>
+                </div>
+                <div class="page" id="page-insights-engagement">
+                    <div class="widget">
+                        <h2>Engagement Insights</h2>
+                        <p>User engagement metrics across different platforms.</p>
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Platform</th>
+                                    <th>Active Users</th>
+                                    <th>Session Duration</th>
+                                </tr>
+                            </thead>
+                            <tbody id="engagement-table-body">
+                                <!-- Table rows will be injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="page" id="page-settings-profile">
+                    <div class="widget">
+                        <h2>Profile Settings</h2>
+                        <p>This is where you would edit your user profile information.</p>
+                        <form class="settings-form">
+                            <div class="form-group">
+                                <label for="full-name">Full Name</label>
+                                <input type="text" id="full-name" value="Alex Doe">
+                            </div>
+                            <div class="form-group">
+                                <label for="email">Email Address</label>
+                                <input type="email" id="email" value="alex.doe@example.com">
+                            </div>
+                            <button type="submit" class="suggestion-btn">Save Changes</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="page" id="page-settings-security">
+                    <div class="widget">
+                        <h2>Security Settings</h2>
+                        <p>This is where you would manage your account security.</p>
+                        <form class="settings-form">
+                            <div class="form-group">
+                                <label for="current-password">Current Password</label>
+                                <input type="password" id="current-password">
+                            </div>
+                            <div class="form-group">
+                                <label for="new-password">New Password</label>
+                                <input type="password" id="new-password">
+                            </div>
+                             <button type="submit" class="suggestion-btn">Update Password</button>
+                        </form>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const body = document.body;
+            const loader = document.getElementById('loader');
+            const appBackground = document.getElementById('app-background');
+
+            // --- Audio Context for Sound Feedback ---
+            let audioCtx;
+            function initAudio() {
+                if (!audioCtx) {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                }
+            }
+            function playSound(type) {
+                if (!audioCtx) return;
+                const oscillator = audioCtx.createOscillator();
+                const gainNode = audioCtx.createGain();
+                oscillator.connect(gainNode);
+                gainNode.connect(audioCtx.destination);
+
+                if (type === 'calm') {
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(261.6, audioCtx.currentTime);
+                    gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.8);
+                } else if (type === 'energetic') {
+                    oscillator.type = 'triangle';
+                    oscillator.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                    gainNode.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.2);
+                } else { // professional
+                    oscillator.type = 'square';
+                    oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+                    gainNode.gain.setValueAtTime(0.1, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 0.05);
+                }
+                oscillator.start(audioCtx.currentTime);
+                oscillator.stop(audioCtx.currentTime + 1);
+            }
+
+            // --- Mood Impact Data & UI Update ---
+            const moodData = {
+                'theme-calm': { stress: { val: 20, text: 'Low' }, energy: { val: 50, text: 'Medium' }, focus: { val: 85, text: 'High' } },
+                'theme-energetic': { stress: { val: 60, text: 'Medium' }, energy: { val: 90, text: 'High' }, focus: { val: 65, text: 'Good' } },
+                'theme-professional': { stress: { val: 40, text: 'Managed' }, energy: { val: 60, text: 'Steady' }, focus: { val: 95, text: 'Very High' } }
+            };
+            function updateMoodImpact(theme) {
+                const data = moodData[theme];
+                if (!data) return;
+
+                document.getElementById('stress-fill').style.width = data.stress.val + '%';
+                document.getElementById('stress-text').textContent = data.stress.text;
+                document.getElementById('energy-fill').style.width = data.energy.val + '%';
+                document.getElementById('energy-text').textContent = data.energy.text;
+                document.getElementById('focus-fill').style.width = data.focus.val + '%';
+                document.getElementById('focus-text').textContent = data.focus.text;
+            }
+            
+            // --- Core Theme Switching Logic ---
+            const moodCards = document.querySelectorAll('.mood-card');
+            function setTheme(theme) {
+                initAudio();
+                loader.classList.add('visible');
+
+                setTimeout(() => {
+                    body.className = '';
+                    body.classList.add(theme);
+                    appBackground.style.animation = 'none'; // Reset animation
+                    void appBackground.offsetWidth; // Trigger reflow
+                    appBackground.style.animation = null; 
+
+                    moodCards.forEach(c => c.classList.remove('active'));
+                    document.querySelector(`.mood-card[data-theme="${theme}"]`).classList.add('active');
+
+                    updateMoodImpact(theme);
+                    
+                    if (theme === 'theme-calm') playSound('calm');
+                    else if (theme === 'theme-energetic') playSound('energetic');
+                    else playSound('professional');
+                    
+                    loader.classList.remove('visible');
+                }, 800);
+            }
+            moodCards.forEach(card => card.addEventListener('click', () => setTheme(card.dataset.theme)));
+
+            // --- Auto Suggestion Logic ---
+            document.getElementById('suggestion-btn').addEventListener('click', () => {
+                const hour = new Date().getHours();
+                let suggestedTheme;
+                if (hour >= 7 && hour < 12) { suggestedTheme = 'theme-energetic'; }
+                else if (hour >= 12 && hour < 18) { suggestedTheme = 'theme-professional'; }
+                else { suggestedTheme = 'theme-calm'; }
+                setTheme(suggestedTheme);
+            });
+
+            // --- Sidebar Logic ---
+            const sidebarToggleBtn = document.getElementById('sidebar-toggle-btn');
+            const sidebarOverlay = document.getElementById('sidebar-overlay');
+            const submenuToggles = document.querySelectorAll('.has-submenu');
+            let isDesktop = window.innerWidth > 992;
+
+            const toggleSidebar = () => {
+                if (isDesktop) { body.classList.toggle('sidebar-collapsed'); }
+                else { body.classList.toggle('sidebar-open'); }
+            };
+            sidebarToggleBtn.addEventListener('click', toggleSidebar);
+            sidebarOverlay.addEventListener('click', toggleSidebar);
+
+            submenuToggles.forEach(toggleWrapper => {
+                const button = toggleWrapper.querySelector('.submenu-toggle');
+                button.addEventListener('click', () => {
+                    submenuToggles.forEach(other => { if(other !== toggleWrapper) other.classList.remove('submenu-open'); });
+                    toggleWrapper.classList.toggle('submenu-open');
+                });
+            });
+            window.addEventListener('resize', () => {
+                const newIsDesktop = window.innerWidth > 992;
+                if (newIsDesktop !== isDesktop) {
+                    isDesktop = newIsDesktop;
+                    body.classList.remove('sidebar-open', 'sidebar-collapsed');
+                }
+            });
+
+            // --- SPA Navigation Logic ---
+            const pages = document.querySelectorAll('.page');
+            const menuLinks = document.querySelectorAll('[data-target]');
+
+            function navigateTo(pageId) {
+                pages.forEach(page => {
+                    page.classList.toggle('active', page.id === pageId);
+                });
+
+                menuLinks.forEach(link => {
+                    const menuItem = link.closest('.menu-item');
+                    if (link.dataset.target === pageId) {
+                        menuItem.classList.add('active');
+                         // Open parent submenu if a child is activated
+                        if (menuItem.closest('.submenu')) {
+                            const parentMenu = menuItem.closest('.has-submenu');
+                            parentMenu.classList.add('submenu-open', 'active');
+                        }
+                    } else {
+                         menuItem.classList.remove('active');
+                    }
+                });
+
+                 // Clean up any other active states in submenus
+                document.querySelectorAll('.has-submenu').forEach(submenu => {
+                    if (!submenu.contains(document.querySelector('.menu-item.active'))) {
+                        submenu.classList.remove('active');
+                    }
+                });
+            }
+
+            // --- To-Do List State & Logic ---
+            let todos = [
+                { text: 'Review Q3 Design Mockups', completed: false },
+                { text: 'Team Sync at 2:00 PM', completed: true },
+                { text: 'Update User Profile Logic', completed: false }
+            ];
+
+            function renderTodos() {
+                const list = document.getElementById('todo-list');
+                list.innerHTML = todos.map((todo, index) => `
+                    <li class="todo-item ${todo.completed ? 'completed' : ''}">
+                        <span onclick="toggleTodo(${index})">${todo.text}</span>
+                        <button class="delete-btn" onclick="deleteTodo(${index})">&times;</button>
+                    </li>
+                `).join('');
+            }
+            
+            // Global functions for inline onclick handlers (simple implementation)
+            window.toggleTodo = (index) => { todos[index].completed = !todos[index].completed; renderTodos(); };
+            window.deleteTodo = (index) => { todos.splice(index, 1); renderTodos(); };
+
+            document.querySelector('.menu').addEventListener('click', (e) => {
+                const targetLink = e.target.closest('[data-target]');
+                if (targetLink) {
+                    e.preventDefault();
+                    navigateTo(targetLink.dataset.target);
+                }
+            });
+
+            // Initialize To-Do Form
+            const todoForm = document.getElementById('todo-form');
+            if(todoForm) {
+                todoForm.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    const input = document.getElementById('todo-input');
+                    if(input.value.trim()) {
+                        todos.push({ text: input.value.trim(), completed: false });
+                        input.value = '';
+                        renderTodos();
+                    }
+                });
+            }
+
+            // --- Mock Data & Dynamic Rendering ---
+            function renderMockData() {
+                // KPI Cards Data
+                const kpiData = [
+                    { value: '12', label: 'Tasks Completed' },
+                    { value: '4.5h', label: 'Focus Time' },
+                    { value: '5 Days', label: 'Mood Streak' }
+                ];
+                const kpiContainer = document.getElementById('kpi-grid-home');
+                kpiContainer.innerHTML = kpiData.map(kpi => `
+                    <div class="kpi-card">
+                        <div class="value">${kpi.value}</div>
+                        <div class="label">${kpi.label}</div>
+                    </div>
+                `).join('');
+                
+                renderTodos();
+
+                // Activity Feed
+                const activities = [
+                    { icon: '📩', text: 'New comment on "Calm Theme" design', time: '5m ago' },
+                    { icon: '🚀', text: 'Deployment to staging successful', time: '2h ago' },
+                    { icon: '👤', text: 'Alex updated profile settings', time: '1d ago' }
+                ];
+                document.getElementById('activity-feed').innerHTML = activities.map(act => `
+                    <li>
+                        <div class="icon">${act.icon}</div>
+                        <div class="text">${act.text}</div>
+                        <div class="time">${act.time}</div>
+                    </li>
+                `).join('');
+
+                // Traffic Chart Data
+                const trafficData = [
+                    { source: 'Google', visitors: 1480 },
+                    { source: 'Twitter', visitors: 940 },
+                    { source: 'Direct', visitors: 810 },
+                    { source: 'GitHub', visitors: 1250 },
+                    { source: 'Other', visitors: 450 }
+                ];
+                const trafficChart = document.getElementById('traffic-chart');
+                const maxVisitors = Math.max(...trafficData.map(d => d.visitors));
+                trafficChart.innerHTML = trafficData.map(d => `
+                    <div class="chart-bar" style="height: ${(d.visitors / maxVisitors) * 100}%">
+                        <div class="tooltip">${d.source}: ${d.visitors}</div>
+                    </div>
+                `).join('');
+
+                // Engagement Table Data
+                const engagementData = [
+                    { platform: 'Desktop', users: '8,920', duration: '8m 12s' },
+                    { platform: 'Mobile', users: '3,110', duration: '5m 21s' },
+                    { platform: 'Tablet', users: '830', duration: '7m 45s' }
+                ];
+                const engagementTable = document.getElementById('engagement-table-body');
+                engagementTable.innerHTML = engagementData.map(d => `
+                    <tr>
+                        <td>${d.platform}</td>
+                        <td>${d.users}</td>
+                        <td>${d.duration}</td>
+                    </tr>
+                `).join('');
+            }
+            
+            // Prevent form submission on settings pages
+            document.querySelectorAll('.settings-form').forEach(form => {
+                form.addEventListener('submit', e => e.preventDefault());
+            });
+
+
+            // --- Modal Logic ---
+            const designModal = document.getElementById('design-modal');
+            document.getElementById('view-design-process').addEventListener('click', () => designModal.classList.add('visible'));
+            document.getElementById('modal-close-btn').addEventListener('click', () => designModal.classList.remove('visible'));
+            designModal.addEventListener('click', (e) => { if(e.target === designModal) designModal.classList.remove('visible'); });
+
+            // --- Initial Load ---
+            renderMockData();
+            setTheme('theme-professional');
+            navigateTo('page-home');
+        });
+    </script>
+</body>
+</html>
